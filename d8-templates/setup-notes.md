@@ -2,13 +2,13 @@
 
 Please note any issues!
 
-* Step 1 - Add url to /etc/hosts:
-
+## Step 1
+**Add url to /etc/hosts**
 In `/etc/hosts`, add:
 `127.0.1.1 PROJECTNAME.test`
 
-* Step 2:
-Setup local reverse proxy.
+## Step 2:
+**Setup local reverse proxy**
 Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-proxy) repo.
 Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/main/README.md)
 
@@ -18,9 +18,11 @@ Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/mai
 
 `./cert-gen.sh PROJECTNAME.test`
 
-* Step 3:
-Set up directory. Suggesting in /srv/PROJECTNAME, but can be anywhere as long as it's configured in step 4.
-This assumes you already have PROJECTNAME-site repo cloned onto your machine, in a different location. If not, do that now. https://github.com/UN-OCHA/PROJECTNAME-site/
+## Step 3:
+**Set up directory in BASEDIR/STACK**
+Suggesting BASEDIR is /srv/PROJECTNAME, if there's only one site for that project, or /srv/PROJECTNAME/PROJECTID for projects with two versions (e.g if there's a Drupal 7 and Drupal 8 version of the same site).
+It can be anywhere as long as it's configured in step 4, but the commands below assume /srv/PROJECTNAME.
+This also assumes you already have PROJECTNAME-site repo cloned onto your machine, in a different location. If not, do that now. https://github.com/UN-OCHA/PROJECTNAME-site/
 
 `sudo mkdir -p /srv/PROJECTNAME/local/srv/`
 
@@ -38,8 +40,8 @@ This assumes you already have PROJECTNAME-site repo cloned onto your machine, in
 
 `chown -R 4000:4000 shared`
 
-* Step 4
-Configure local stack.
+## Step 4
+**Configure local stack**
 
 `cd PROJECTNAME-stack/env/local/rplocal`
 ('rp' stands for 'reverse proxy')
@@ -49,8 +51,8 @@ Anything else in .env you'd like to change?
 
 `docker-compose up -d`
 
-* Step 5
-Initialize site
+## Step 5
+**Initialize site**
 `composer install` within the container sometimes has trouble with patches. If so, it can be run in the site repo outside of the container.
 
 Import database:
@@ -72,26 +74,31 @@ Change permissions for /tmp
 `chmod -R 777 /tmp`
 `drush cr`
 
-
-* Step 6:
+## Step 6:
+**Test it**
 Visit PROJECTNAME.test in your browser, accept the ssl warning.
+
 
 # Starting and stopping, once set up
 
-Step 1 - Check reverse proxy is running
+## Step 1
+**Check reverse proxy is running**
 `docker ps` to check running containers.
 If it’s not running, `cd` to local-reverse-proxy directory and
 `docker-compose up -d`
 
-Step 2 - Start PROJECTNAME stack
-`cd` to PROJECTNAME-stack/env/demo/rplocal
+## Step 2
+**Start PROJECTNAME stack**
+`cd` to PROJECTNAME-stack/env/local/rplocal
 `docker-compose up -d`
 The site should now be working.
 
-Step 3 - Enter container to run commands
+## Step 3
+**Enter container to run commands**
 `docker-compose exec drupal bash`
 Ctrl-D to exit container again.
 
-Step 4 - Shut down stack
-`cd` to PROJECTNAME-stack/env/demo/rplocal
+## Step 4
+**Shut down stack**
+`cd` to PROJECTNAME-stack/env/local/rplocal
 `docker-compose stop`
