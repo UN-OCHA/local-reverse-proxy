@@ -13,17 +13,17 @@ services:
       service: mysql
     container_name: ${PROJECT}-mysql
     volumes:
-      - "${BASEDIR}/${STACK}/var/lib/mysql:/var/lib/mysql"
-      - "${BASEDIR}/${STACK}/var/log/mysql:/var/log/mysql"
-      - "${BASEDIR}/${STACK}/var/tmp/mysql:/var/tmp/mysql"
+      - "${BASEDIR}/var/lib/mysql:/var/lib/mysql"
+      - "${BASEDIR}/var/log/mysql:/var/log/mysql"
+      - "${BASEDIR}/var/tmp/mysql:/var/tmp/mysql"
     environment:
-      - TERM=xterm
-      - ENVIRONMENT=demo
+      - TERM=${TERM}
+      - ENVIRONMENT=${ENVIRONMENT}
       - MYSQL_DB=${MYSQL_DB}
       - MYSQL_USER=${MYSQL_DB}
       - MYSQL_PASS=${MYSQL_DB}
-    mem_limit: $MEM_LO
-    cpu_quota: 600000
+    mem_limit: ${MEM_LO}
+    cpu_quota: ${CPU_QLO}
     networks:
       - default
 
@@ -31,46 +31,36 @@ services:
     extends:
       file: ../../../common.yml
       service: drupal
+    image: unocha/gho-site:${TAG:-local}
     container_name: ${PROJECT}-drupal
     scale: 1
     volumes:
-      - "${BASEDIR}/${STACK}/srv/www:/srv/www:rw"
-      - "${BASEDIR}/${STACK}/srv/www/html:/srv/www/html:rw"
-      - "${BASEDIR}/${STACK}/var/log/nginx:/var/log/nginx:rw"
-      - "${BASEDIR}/${STACK}/var/log/php:/var/log/php:rw"
-      - "${BASEDIR}/${STACK}/srv/database:/srv/www/database:rw"
-      - "${BASEDIR}/${STACK}/srv/shared:/srv/www/shared:rw"
-      - "${BASEDIR}/${STACK}/srv/shared/files:/srv/www/html/sites/default/files:rw"
-      - "${BASEDIR}/${STACK}/srv/shared/private:/srv/www/html/sites/default/private:rw"
-      - "${BASEDIR}/${STACK}/tmp:/tmp:rw"
+      - "${BASEDIR}/srv/www:/srv/www:rw"
+      - "${BASEDIR}/srv/www/html:/srv/www/html:rw"
+      - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
+      - "${BASEDIR}/var/log/php:/var/log/php:rw"
+      - "${BASEDIR}/srv/database:/srv/www/database:rw"
+      - "${BASEDIR}/srv/shared:/srv/www/shared:rw"
+      - "${BASEDIR}/srv/shared/files:/srv/www/html/sites/default/files:rw"
+      - "${BASEDIR}/srv/shared/private:/srv/www/html/sites/default/private:rw"
+      - "${BASEDIR}/tmp:/tmp:rw"
     environment:
-      - ENVIRONMENT=dev
-      - TERM=xterm
-      - NGINX_SERVERNAME=${NGINX_SERVERNAME}
+      - ENVIRONMENT=${ENVIRONMENT}
       - PHP_ENVIRONMENT=${PHP_ENVIRONMENT}
-      - PHP_ERROR_LOG=${PHP_ERROR_LOG}
-      - PHP_RUN_USER=${PHP_RUN_USER}
-      - PHP_RUN_GROUP=${PHP_RUN_GROUP}
-      - PHP_NEWRELIC_APPNAME=${PHP_NEWRELIC_APPNAME}
-      - PHP_MAX_CHILDREN=${PHP_MAX_CHILDREN}
-      - PHP_START_SERVERS=${PHP_START_SERVERS}
-      - PHP_MIN_SPARE_SERVERS=${PHP_MIN_SPARE_SERVERS}
-      - PHP_MAX_SPARE_SERVERS=${PHP_MAX_SPARE_SERVERS}
-      - PHP_MAX_REQUESTS=${PHP_MAX_REQUESTS}
-      - PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME}
-      - PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT}
-      - PHP_POST_MAX_SIZE=${PHP_POST_MAX_SIZE}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_POST_MAX_SIZE}
-      - LETSENCRYPT_HOST=${VIRTUAL_HOST}
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - TERM=${TERM}
+      - NGINX_SERVERNAME=${NGINX_SERVERNAME}
+      - NGINX_OVERRIDE_PROTOCOL=${NGINX_SERVERNAME}
+      - LETSENCRYPT_EMAIL=ops+${PROJECT}@humanitarianresponse.info
+      - LETSENCRYPT_HOST=${NGINX_SERVERNAME}
+      - VIRTUAL_HOST=${NGINX_SERVERNAME}
       - VIRTUAL_PORT=80
       - VIRTUAL_NETWORK=nginx-proxy
       - DRUSH_OPTIONS_URI=https://${NGINX_SERVERNAME}
       - HTTPS_METHOD=noredirect
     depends_on:
       - mysql
-    mem_limit: $MEM_LO
-    cpu_quota: 600000
+    mem_limit: ${MEM_LO}
+    cpu_quota: ${CPU_QLO}
     networks:
       - default
       - proxy
