@@ -22,8 +22,6 @@ services:
       - MYSQL_DB=${MYSQL_DB}
       - MYSQL_USER=${MYSQL_DB}
       - MYSQL_PASS=${MYSQL_DB}
-    mem_limit: ${MEM_LO}
-    cpu_quota: ${CPU_QLO}
     networks:
       - default
 
@@ -63,8 +61,6 @@ services:
       - DRUPAL_DB_DRIVER=mysql
     depends_on:
       - mysql
-    mem_limit: ${MEM_LO}
-    cpu_quota: ${CPU_QLO}
     networks:
       - default
       - proxy
