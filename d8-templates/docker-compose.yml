@@ -22,21 +22,18 @@ services:
       - MYSQL_DB=${MYSQL_DB}
       - MYSQL_USER=${MYSQL_DB}
       - MYSQL_PASS=${MYSQL_DB}
-    mem_limit: ${MEM_LO}
-    cpu_quota: ${CPU_QLO}
     networks:
       - default
 
   drupal:
-    extends:
-      file: ../../../common.yml
-      service: drupal
-    image: unocha/gho-site:${TAG:-local}
+    image: unocha/${PROJECT}-site:${TAG:-local}
     container_name: ${PROJECT}-drupal
     scale: 1
     volumes:
       - "${BASEDIR}/srv/www:/srv/www:rw"
       - "${BASEDIR}/srv/www/html:/srv/www/html:rw"
+      - "${BASEDIR}/srv/www/docker/settings.php:/srv/www/html/sites/default/settings.php:rw"
+      - "${BASEDIR}/srv/www/docker/services.yml:/srv/www/html/sites/default/services.yml:rw"
       - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
       - "${BASEDIR}/var/log/php:/var/log/php:rw"
       - "${BASEDIR}/srv/database:/srv/www/database:rw"
@@ -57,10 +54,13 @@ services:
       - VIRTUAL_NETWORK=nginx-proxy
       - DRUSH_OPTIONS_URI=https://${NGINX_SERVERNAME}
       - HTTPS_METHOD=noredirect
+      - DRUPAL_DB_DATABASE=${MYSQL_DB}
+      - DRUPAL_DB_USERNAME=${MYSQL_DB}
+      - DRUPAL_DB_PASSWORD=${MYSQL_DB}
+      - DRUPAL_DB_HOST=mysql
+      - DRUPAL_DB_DRIVER=mysql
     depends_on:
       - mysql
-    mem_limit: ${MEM_LO}
-    cpu_quota: ${CPU_QLO}
     networks:
       - default
       - proxy

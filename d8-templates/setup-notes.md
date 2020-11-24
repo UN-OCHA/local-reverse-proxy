@@ -64,31 +64,33 @@ can be run in the site repo outside of the container.
 ## Step 6
 **Create/ Import database**
 Download latest snapshot from https://snapshots.aws.ahconu.org/PROJECTNAME/prod/
-to `${BASEDIR}/srv/database`
+to `${BASEDIR}/tmp`
 
 `docker-compose exec drupal bash`
 
 For setting up the database:
-`drush sql-connect` to check if the database settings are already set. If not:
+`drush sql-connect` to check if the database settings are already set. If not,
+get a settings.local.php file from another developer on the project. If there
+isn't one yet:
 
 `drush -y si --db-url=mysql://PROJECTNAME:PROJECTNAME@mysql/PROJECTNAME minimal`
 
-Note: if default.settings.php is not present, copy it from another site.
-
-`$(drush sql-connect) < /srv/www/database/name-of-dump.sql`
+`$(drush sql-connect) < /tmp/name-of-dump.sql`
 
 `drush -y config-set "system.site" uuid "SITE-UID"`
 Where SITE-UID is found in `/path/to/PROJECTNAME-site/config/system.site.yml`
 
 ## Step 7
 **Update site**
-`drupal drush cr`
+`drush cr`
 
-`drupal -y drush cim`
+Check the config directory is set in `settings.local.php`, then run:
+`drush cim`
+If it's not set, run `drush cim --source=../config`
 
-`drupal -y drush updatedb`
+`drush updatedb`
 
-`drupal drush cr`
+`drush cr`
 
 
 ## Step 8
