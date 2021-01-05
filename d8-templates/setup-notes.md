@@ -1,13 +1,23 @@
-# Set up notes.
+# Project set up - Drupal 8 - Reverse proxy based local setup
+
+This is the setup for a drupal 8 site. It requires a reverse proxy
+(for example https://github.com/UN-OCHA/local-reverse-proxy) and a docker
+network named `nginx-proxy`.
+
+**Note:** It is designed to run alongside other reverse-proxied sites - but
+there will be a port conflict if you try running it alongside docksal.
+
+**Note:** All the `docker-compose` commands from step 2 and onwards assume that
+you are in the directory holding this README. Otherwise, try with `docker exec`.
 
 ## Step 1
-**Create DNS alias**
-`echo "127.0.1.1 PROJECTNAME.test" >> /etc/hosts`
-
-## Step 2:
 **Setup local reverse proxy**
-Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-proxy) repo.
-Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/main/README.md)
+Set up local DNS
+`echo "127.0.0.1 PROJECTNAME.test" >> /etc/hosts`
+
+Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-
+proxy) repo. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-
+proxy/blob/main/README.md)
 
 `cd local-reverse-proxy`
 
@@ -15,87 +25,105 @@ Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/mai
 
 `./cert-gen.sh PROJECTNAME.test`
 
-## Step 3:
+## Step 2:
 **Files and permissions set up on host machine**
-Suggesting BASEDIR is /srv/PROJECTNAME/[VERSION/]/local. It can be anywhere as
-long as it's configured in step 4. This set up involves a symlink so as not to
-dictate the code location.
+`BASEDIR` is the location you will mount your volumes from. It can be anywhere.
+For example under `/srv/PROJECT` on linux or `/Users/USERNAME/srv/
+PROJECT` on macOS when using docker for mac.
 
-`git clone https://github.com/UN-OCHA/PROJECTNAME-site`
-(clone site repo to where you normally keep your code)
+Create a `BASEDIR` directory for the project and specify its path in
+`env/feature/local/.env` — that path is marked by `${BASEDIR}` in the next set
+of commands.
 
-`sudo mkdir -p ${BASEDIR}/srv/`
+**Note:** you may need to use `sudo` for the commands below if you use `/srv`
+as `BASEDIR` for example. Ex: `sudo chmod -R 777 tmp`.
 
-`sudo chown -R 1000:1000 ${BASEDIR}/srv/`
+Run these commands:
 
-`cd ${BASEDIR}/srv/`
-
-`mkdir -p tmp database shared/files shared/private`
-
-`chmod -R 777 tmp`
-
-`sudo chown -R 4000:4000 shared`
-(4000 is the uid of `appuser` in the containers)
-
-`ln -s /path/to/PROJECTNAME-site www`
-(link the site codebase within the host machine)
+1. `mkdir -p "${BASEDIR}/srv/www" "${BASEDIR}/tmp"`
+2. `chmod -R 777 "${BASEDIR}/tmp"`
+3. `cd "${BASEDIR}/srv/www"`
+4. `mkdir -p shared/files shared/private shared/settings database`
+5. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in
+the containers)
 
 
-## Step 4
+## Step 3
 **Configure and start the containers**
 
-This assumes there is a `PROJECTNAME-site:local` docker image. It can be created by
-running `make` in the `PROJECTNAME-site` repository.
+Adjust the `SITEREPODIR` env variable in `env/dev/local/.env` to match the
+location where you have downloaded the PROJECTNAME-site codebase.
 
-`cd PROJECTNAME-stack/env/local/rplocal`
-('rp' stands for 'reverse proxy')
+**Note:** This assumes there is a `PROJECTNAME-site:local` docker image. It
+can be created by running `make` in the `PROJECTNAME-site` repository.
 
-Adjust BASEDIR to match directory in Step 3. (If necessary).
-
+Run the command:
 `docker-compose up -d`
 
 
-## Step 5
+## Step 4
 **Initialize site**
-`composer install` within the container sometimes has trouble with patches. It
-can be run in the site repo outside of the container.
+Configure settings for 'hash_salt', 'social_auth_hid' and 'stage_file_proxy' in
+`./settings/settings.local.php`. (The relative path is from this README.)
+
+Copy settings files to the BASEDIR.
+`cp ./settings/* "${BASEDIR}/srv/www/shared/settings"`
+
+**Note:** Remember that any further changes to local settings should be made in
+the BASEDIR copy. This is so that local changes won't be accidentally
+committed to this stack repository.
+
+Run `docker-compose exec drupal composer install -y`.
+
+**Note:** If this doesn't work inside the container, try running `composer
+install` in the `PROJECTNAME-site` repository on the host. Make sure to have
+a compatible version of PHP and composer (ex: PHP 7.3 and composer 1.10). To
+see more clearly what's going on in the container, try entering it first:
+`docker-compose exec drupal bash` and running `composer install from there.
 
 
 ## Step 6
 **Create/ Import database**
-Download latest snapshot from https://snapshots.aws.ahconu.org/PROJECTNAME/prod/
-to `${BASEDIR}/tmp`
+If there are database settings in settings.local.php and a database at
+https://snapshots.aws.ahconu.org/PROJECTNAME:
 
-`docker-compose exec drupal bash`
+Get a database snapshot from https://snapshots.aws.ahconu.org/PROJECTNAME,
+download it, unzip it and move it to `${BASEDIR}/tmp`.
 
-For setting up the database:
-`drush sql-connect` to check if the database settings are already set. If not,
-get a settings.local.php file from another developer on the project. If there
-isn't one yet:
+Then import it with (replace `DATABASE-DUMP.sql` by the real filename):
 
-`drush -y si --db-url=mysql://PROJECTNAME:PROJECTNAME@mysql/PROJECTNAME minimal`
+1. `docker-compose exec drupal bash`
+2. `drush sqlc < /tmp/DATABASE-DUMP.sql`
+3. `exit`
 
-`$(drush sql-connect) < /tmp/name-of-dump.sql`
+If not, install the site:
+1. `docker-compose exec drupal bash`
+2. `drush -y si --db-url=mysql://PROJECTNAME:PROJECTNAME@mysql/PROJECTNAME
+minimal`
+3. `drush -y config-set "system.site" uuid "SITE-UID"` (If SITE-UID is found
+in `/path/to/PROJECTNAME-site/config/system.site.yml`)
+3. `exit`
 
-`drush -y config-set "system.site" uuid "SITE-UID"`
-Where SITE-UID is found in `/path/to/PROJECTNAME-site/config/system.site.yml`
+
+## Step 6
+**Update site**
+
+1. `docker-compose exec -u appuser drupal drush cr`
+2. `docker-compose exec -u appuser drupal -y drush cim`
+3. `docker-compose exec -u appuser drupal -y drush updatedb`
+4. `docker-compose exec -u appuser drupal drush cr`
+
 
 ## Step 7
-**Update site**
-`drush cr`
-
-Check the config directory is set in `settings.local.php`, then run:
-`drush cim`
-If it's not set, run `drush cim --source=../config`
-
-`drush updatedb`
-
-`drush cr`
-
-
-## Step 8
 **Test it**
-Visit PROJECTNAME.test in your browser, accept the ssl warning if there is one.
+Visit PROJECTNAME.test in your browser.
+
+
+# Troubleshooting
+1. Check BASEDIR and SITEREPODIR variables are correct in .env file.
+2. `docker-compose exec drupal bash` into the container and check files are
+where you'd expect them to be.
+3. Ask for help (and update these notes with the answer).
 
 
 # Starting and stopping, once set up
@@ -108,20 +136,25 @@ If it’s not running, `cd` to local-reverse-proxy directory and
 
 ## Step 2
 **Start PROJECTNAME stack**
-`cd` to PROJECTNAME-stack/env/local/rplocal
+`cd` to PROJECTNAME-stack/env/dev/local
 `docker-compose up -d`
 The site should now be working.
 
 ## Step 3
 **Enter container to run commands**
+From same directory as docker-compose.yml:
 `docker-compose exec drupal bash`
-Ctrl-D to exit container again.
-or prefix commands with
-`docker-compose exec -u appuser drupal`
-for example
-`docker-compose exec -u appuser drupal drush cr`
+From elsewhere:
+`docker exec -it PROJECTNAME-site-drupal sh`
+`exit` (or Ctrl-D) to exit container again.
+
+## Step 4 - Run commands without entering container
+From same directory as docker-compose.yml:
+`docker-compose exec drupal drush cr`
+From elsewhere:
+`docker exec -it PROJECTNAME-site drupal drush cr`
 
 ## Step 4
 **Shut down stack**
-`cd` to PROJECTNAME-stack/env/local/rplocal
+`cd` to PROJECTNAME-stack/env/dev/local
 `docker-compose stop`
