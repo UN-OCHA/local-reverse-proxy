@@ -36,18 +36,17 @@ services:
     scale: 1
     volumes:
       - "${SITEREPODIR}:/srv/www:rw"
-      - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
-      - "${BASEDIR}/var/log/php:/var/log/php:rw"
-      - "${BASEDIR}/srv/database:/srv/www/database:rw"
-      - "${BASEDIR}/srv/shared:/srv/www/shared:rw"
-      - "${BASEDIR}/srv/shared/files:/srv/www/html/sites/default/files:rw"
-      - "${BASEDIR}/srv/shared/private:/srv/www/html/sites/default/private:rw"
-      - "${BASEDIR}/tmp:/tmp:rw"
-      - /dev/log:/dev/log:rw"
-      # These next two lines are for projects that are already set-up. For
-      # a fresh install of a site, drush site:install will interfere with them.
       - "${SITEREPODIR}/docker/settings.php:/srv/www/html/sites/default/settings.php:rw"
       - "${SITEREPODIR}/docker/services.yml:/srv/www/html/sites/default/services.yml:rw"
+      - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
+      - "${BASEDIR}/var/log/php:/var/log/php:rw"
+      - "${BASEDIR}/srv/www/database:/srv/www/database:rw"
+      - "${BASEDIR}/srv/www/vendor:/srv/www/vendor:rw"
+      - "${BASEDIR}/srv/www/shared:/srv/www/shared:rw"
+      - "${BASEDIR}/srv/www/shared/files:/srv/www/html/sites/default/files:rw"
+      - "${BASEDIR}/srv/www/shared/private:/srv/www/html/sites/default/private:rw"
+      - "${BASEDIR}/tmp:/tmp:rw"
+      - /dev/log:/dev/log:rw"
     environment:
       - ENVIRONMENT=${ENVIRONMENT}
       - PHP_ENVIRONMENT=${PHP_ENVIRONMENT}
@@ -66,6 +65,7 @@ services:
       - DRUPAL_DB_PASSWORD=${MYSQL_DB}
       - DRUPAL_DB_HOST=mysql.${PREFIX}
       - DRUPAL_DB_DRIVER=mysql
+      - SOLR_CORE=${SOLR_CORE:-solr}
     networks:
       - default
       - proxy
@@ -80,6 +80,19 @@ services:
     extends:
       file: ../../../common.yml
       service: solr
+    container_name: ${PROJECT}-solr
+    volumes:
+      - "${BASEDIR}/tmp:/tmp:rw"
+      - "${BASEDIR}/srv/solr:/var/solr"
+      - "${BASEDIR}/srv/backups:/srv/backups"
+      - "./etc/solr/configsets:/configsets"
+    environment:
+      - TERM=xterm
+      - SOLR_CORE=${SOLR_CORE:-solr}
+    command:
+      - solr-precreate
+      - ${SOLR_CORE:-solr}
+      - /configsets/${SOLR_SCHEMA:-drupal}
     networks:
       default:
         aliases:
