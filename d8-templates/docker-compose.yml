@@ -41,7 +41,6 @@ services:
       - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
       - "${BASEDIR}/var/log/php:/var/log/php:rw"
       - "${BASEDIR}/srv/www/database:/srv/www/database:rw"
-      - "${BASEDIR}/srv/www/vendor:/srv/www/vendor:rw"
       - "${BASEDIR}/srv/www/shared:/srv/www/shared:rw"
       - "${BASEDIR}/srv/www/shared/files:/srv/www/html/sites/default/files:rw"
       - "${BASEDIR}/srv/www/shared/private:/srv/www/html/sites/default/private:rw"

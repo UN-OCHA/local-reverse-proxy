@@ -43,9 +43,9 @@ Run these commands:
 1. `mkdir -p "${BASEDIR}/srv/www" "${BASEDIR}/srv/solr" "${BASEDIR}/srv/backups" "${BASEDIR}/tmp"`
 2. `chmod -R 777 "${BASEDIR}/tmp"`
 3. `cd "${BASEDIR}/srv/www"`
-4. `mkdir -p vendor shared/files shared/private shared/settings database`
-5. `chown -R 4000:4000 vendor shared/files shared/private` (4000 is the
-`appuser` in the containers)
+4. `mkdir -p shared/files shared/private shared/settings database`
+5. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in
+the containers)
 
 
 ## Step 3
@@ -73,15 +73,11 @@ Copy settings files to the BASEDIR.
 the BASEDIR copy. This is so that local changes won't be accidentally
 committed to this stack repository.
 
-Run `docker-compose exec -u appuser drupal composer install`.
-When prompted `No composer.json in current directory, do you want to use the
-one at /srv/www?`, respond `Y`.
+On the host machine, run `composer install` from SITEREPODIR.
 
-+**Note:** Make sure to have a compatible version of PHP and composer (ex: PHP
-+7.3 and composer 1.10). If this doesn't work inside the container, get more
-+information with the `-vvv` flag. ( `docker-compose exec -u appuser drupal
-+composer install -vvv`. For an error of `patch: not found`, install patch with
-+`docker-compose exec drupal apk add patch`.
+**Note:** Make sure to have a compatible version of PHP and composer (ex: PHP
+7.3 and composer 1.10). (We tried running composer inside the containers, but
+it got complicated https://humanitarian.atlassian.net/browse/OPS-7240 .)
 
 
 ## Step 6
