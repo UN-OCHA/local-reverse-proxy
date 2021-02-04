@@ -15,15 +15,11 @@ you are in the directory holding this README. Otherwise, try with `docker exec`.
 Set up local DNS
 `echo "127.0.0.1 PROJECTNAME.test" >> /etc/hosts`
 
-Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-
-proxy) repo. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-
-proxy/blob/main/README.md)
+1. Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-proxy) repo.
+2. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/main/README.md)
+3. Generate the certificate: `./cert-gen.sh PROJECT.test`
+4. Start the proxy: `cd local-reverse-proxy && docker-compose up -d`
 
-`cd local-reverse-proxy`
-
-`docker-compose up -d`
-
-`./cert-gen.sh PROJECTNAME.test`
 
 ## Step 2:
 **Files and permissions set up on host machine**
@@ -43,9 +39,9 @@ Run these commands:
 1. `mkdir -p "${BASEDIR}/srv/www" "${BASEDIR}/srv/solr" "${BASEDIR}/srv/backups" "${BASEDIR}/tmp"`
 2. `chmod -R 777 "${BASEDIR}/tmp"`
 3. `cd "${BASEDIR}/srv/www"`
-4. `mkdir -p shared/files shared/private shared/settings database`
-5. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in
-the containers)
+4. `chown -R 8983:8983 "${BASEDIR}/srv/solr"` (8983 is the `solr` in the container)
+5. `mkdir -p shared/files shared/private shared/settings database`
+6. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in the containers)
 
 
 ## Step 3
@@ -80,7 +76,7 @@ On the host machine, run `composer install` from SITEREPODIR.
 it got complicated https://humanitarian.atlassian.net/browse/OPS-7240 .)
 
 
-## Step 6
+## Step 5
 **Create/ Import database**
 If there are database settings in settings.local.php and a database at
 https://snapshots.aws.ahconu.org/PROJECTNAME:
@@ -126,10 +122,7 @@ where you'd expect them to be.
 
 # Common tasks
 ** Composer updates**
-This requires `appuser` to be able to write to composer.json and composer.lock.
-`chmod 666 composer.json composer.lock` fixes this. Then run, from this
-directory, with the required version:
-`docker-compose exec -u appuser drupal composer require drupal/core:^8.9.14`.
+These should be done on the host machine.
 
 
 # Starting and stopping, once set up

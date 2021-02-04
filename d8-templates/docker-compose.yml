@@ -23,7 +23,7 @@ services:
       - MYSQL_USER=${MYSQL_DB}
       - MYSQL_PASS=${MYSQL_DB}
     networks:
-      - default:
+      default:
         aliases:
           # This is to avoid clashes in case there is another `mysql` on one of
           # the networks the `drupal` service is connected to, and allow to
