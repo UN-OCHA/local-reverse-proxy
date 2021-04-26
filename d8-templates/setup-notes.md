@@ -28,7 +28,7 @@ For example under `/srv/PROJECT` on linux or `/Users/USERNAME/srv/
 PROJECT` on macOS when using docker for mac.
 
 Create a `BASEDIR` directory for the project and specify its path in
-`env/feature/local/.env` — that path is marked by `${BASEDIR}` in the next set
+`env/dev/rplocal/.env` — that path is marked by `${BASEDIR}` in the next set
 of commands.
 
 **Note:** you may need to use `sudo` for the commands below if you use `/srv`

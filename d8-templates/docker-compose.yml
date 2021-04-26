@@ -83,9 +83,8 @@ services:
       - solr
 
   solr:
-    extends:
-      file: ../../../common.yml
-      service: solr
+    image: solr:8.7.0-slim
+    hostname: ${PROJECT}-${STACK}-solr
     container_name: ${PROJECT}-solr
     volumes:
       - "${BASEDIR}/tmp:/tmp:rw"
