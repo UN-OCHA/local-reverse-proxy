@@ -23,7 +23,7 @@ services:
       - MYSQL_USER=${MYSQL_DB}
       - MYSQL_PASS=${MYSQL_DB}
     networks:
-      - default:
+      default:
         aliases:
           # This is to avoid clashes in case there is another `mysql` on one of
           # the networks the `drupal` service is connected to, and allow to
@@ -41,12 +41,11 @@ services:
       - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
       - "${BASEDIR}/var/log/php:/var/log/php:rw"
       - "${BASEDIR}/srv/www/database:/srv/www/database:rw"
-      - "${BASEDIR}/srv/www/vendor:/srv/www/vendor:rw"
       - "${BASEDIR}/srv/www/shared:/srv/www/shared:rw"
       - "${BASEDIR}/srv/www/shared/files:/srv/www/html/sites/default/files:rw"
       - "${BASEDIR}/srv/www/shared/private:/srv/www/html/sites/default/private:rw"
       - "${BASEDIR}/tmp:/tmp:rw"
-      - /dev/log:/dev/log:rw"
+      - /dev/log:/dev/log
     environment:
       - ENVIRONMENT=${ENVIRONMENT}
       - PHP_ENVIRONMENT=${PHP_ENVIRONMENT}
@@ -65,6 +64,13 @@ services:
       - DRUPAL_DB_PASSWORD=${MYSQL_DB}
       - DRUPAL_DB_HOST=mysql.${PREFIX}
       - DRUPAL_DB_DRIVER=mysql
+      - PHP_XDEBUG=${PHP_XDEBUG}
+      - PHP_XDEBUG_DEFAULT_ENABLE=${PHP_XDEBUG_DEFAULT_ENABLE}
+      - PHP_XDEBUG_REMOTE_AUTOSTART=${PHP_XDEBUG_REMOTE_AUTOSTART}
+      - PHP_XDEBUG_REMOTE_CONNECT_BACK=${PHP_XDEBUG_REMOTE_CONNECT_BACK}
+      - PHP_XDEBUG_REMOTE_ENABLE=${PHP_XDEBUG_REMOTE_ENABLE}
+      - PHP_XDEBUG_LOG=${PHP_XDEBUG_LOG}
+      - PHP_OPCACHE_ENABLE=${PHP_OPCACHE_ENABLE}
       - SOLR_CORE=${SOLR_CORE:-solr}
     networks:
       - default

@@ -15,15 +15,11 @@ you are in the directory holding this README. Otherwise, try with `docker exec`.
 Set up local DNS
 `echo "127.0.0.1 PROJECTNAME.test" >> /etc/hosts`
 
-Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-
-proxy) repo. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-
-proxy/blob/main/README.md)
+1. Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-proxy) repo.
+2. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/main/README.md)
+3. Generate the certificate: `./cert-gen.sh PROJECT.test`
+4. Start the proxy: `cd local-reverse-proxy && docker-compose up -d`
 
-`cd local-reverse-proxy`
-
-`docker-compose up -d`
-
-`./cert-gen.sh PROJECTNAME.test`
 
 ## Step 2:
 **Files and permissions set up on host machine**
@@ -40,12 +36,13 @@ as `BASEDIR` for example. Ex: `sudo chmod -R 777 tmp`.
 
 Run these commands:
 
-1. `mkdir -p "${BASEDIR}/srv/www" "${BASEDIR}/srv/solr" "${BASEDIR}/srv/backups" "${BASEDIR}/tmp"`
-2. `chmod -R 777 "${BASEDIR}/tmp"`
-3. `cd "${BASEDIR}/srv/www"`
-4. `mkdir -p vendor shared/files shared/private shared/settings database`
-5. `chown -R 4000:4000 vendor shared/files shared/private` (4000 is the
-`appuser` in the containers)
+1. `mkdir -p ${BASEDIR}/srv/www ${BASEDIR}/srv/solr ${BASEDIR}/srv/backups ${BASEDIR}/tmp ${BASEDIR}/var`
+2. `chmod -R 777 ${BASEDIR}/tmp`
+3. `chown -R 4000:4000 ${BASEDIR}/var` (4000 is the `appuser` in the containers)
+4. `chown -R 8983:8983 ${BASEDIR}/srv/solr` (8983 is the `solr` in the container)
+5. `cd ${BASEDIR}/srv/www`
+6. `mkdir -p shared/files shared/private shared/settings database`
+7. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in the containers)
 
 
 ## Step 3
@@ -54,8 +51,8 @@ Run these commands:
 Adjust the `SITEREPODIR` env variable in `env/dev/local/.env` to match the
 location where you have downloaded the PROJECTNAME-site codebase.
 
-**Note:** This assumes there is a `PROJECTNAME-site:local` docker image. It
-can be created by running `make` in the `PROJECTNAME-site` repository.
+**Note:** This assumes there is a `unocha/PROJECTNAME-site:local` docker image.
+It can be created by running `make` in the `PROJECTNAME-site` repository.
 
 Run the command:
 `docker-compose up -d`
@@ -73,18 +70,14 @@ Copy settings files to the BASEDIR.
 the BASEDIR copy. This is so that local changes won't be accidentally
 committed to this stack repository.
 
-Run `docker-compose exec -u appuser drupal composer install`.
-When prompted `No composer.json in current directory, do you want to use the
-one at /srv/www?`, respond `Y`.
+On the host machine, run `composer install` from SITEREPODIR.
 
-+**Note:** Make sure to have a compatible version of PHP and composer (ex: PHP
-+7.3 and composer 1.10). If this doesn't work inside the container, get more
-+information with the `-vvv` flag. ( `docker-compose exec -u appuser drupal
-+composer install -vvv`. For an error of `patch: not found`, install patch with
-+`docker-compose exec drupal apk add patch`.
+**Note:** Make sure to have a compatible version of PHP and composer (ex: PHP
+7.3 and composer 1.10). (We tried running composer inside the containers, but
+it got complicated https://humanitarian.atlassian.net/browse/OPS-7240 .)
 
 
-## Step 6
+## Step 5
 **Create/ Import database**
 If there are database settings in settings.local.php and a database at
 https://snapshots.aws.ahconu.org/PROJECTNAME:
@@ -111,8 +104,8 @@ in `/path/to/PROJECTNAME-site/config/system.site.yml`)
 **Update site**
 
 1. `docker-compose exec -u appuser drupal drush cr`
-2. `docker-compose exec -u appuser drupal -y drush cim`
-3. `docker-compose exec -u appuser drupal -y drush updatedb`
+2. `docker-compose exec -u appuser drupal drush -y cim`
+3. `docker-compose exec -u appuser drupal drush -y updatedb`
 4. `docker-compose exec -u appuser drupal drush cr`
 
 
@@ -130,10 +123,17 @@ where you'd expect them to be.
 
 # Common tasks
 ** Composer updates**
-This requires `appuser` to be able to write to composer.json and composer.lock.
-`chmod 666 composer.json composer.lock` fixes this. Then run, from this
-directory, with the required version:
-`docker-compose exec -u appuser drupal composer require drupal/core:^8.9.14`.
+These should be done on the host machine.
+
+** Connecting to another local property**
+Haven't yet worked out an automatic way to do this yet.
+Find the local ip address of the property to connect to with `docker inspect`.
+Add `DOCSTORE_IP=<local_ip_address>` to .env file.
+Add this to docker-compose.yml for the drupal container:
+```
+    extra_hosts:
+      - docstore.test:${DOCSTORE_IP}
+```
 
 
 # Starting and stopping, once set up
@@ -155,16 +155,16 @@ The site should now be working.
 From same directory as docker-compose.yml:
 `docker-compose exec drupal bash`
 From elsewhere:
-`docker exec -it PROJECTNAME-site-drupal sh`
+`docker exec -it PROJECTNAME-drupal sh`
 `exit` (or Ctrl-D) to exit container again.
 
 ## Step 4 - Run commands without entering container
 From same directory as docker-compose.yml:
 `docker-compose exec drupal drush cr`
 From elsewhere:
-`docker exec -it PROJECTNAME-site drupal drush cr`
+`docker exec -it PROJECTNAME drupal drush cr`
 
-## Step 4
+## Step 5
 **Shut down stack**
 `cd` to PROJECTNAME-stack/env/dev/local
 `docker-compose stop`
