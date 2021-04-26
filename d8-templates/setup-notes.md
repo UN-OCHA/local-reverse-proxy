@@ -36,12 +36,13 @@ as `BASEDIR` for example. Ex: `sudo chmod -R 777 tmp`.
 
 Run these commands:
 
-1. `mkdir -p "${BASEDIR}/srv/www" "${BASEDIR}/srv/solr" "${BASEDIR}/srv/backups" "${BASEDIR}/tmp"`
-2. `chmod -R 777 "${BASEDIR}/tmp"`
-3. `cd "${BASEDIR}/srv/www"`
-4. `chown -R 8983:8983 "${BASEDIR}/srv/solr"` (8983 is the `solr` in the container)
-5. `mkdir -p shared/files shared/private shared/settings database`
-6. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in the containers)
+1. `mkdir -p ${BASEDIR}/srv/www ${BASEDIR}/srv/solr ${BASEDIR}/srv/backups ${BASEDIR}/tmp ${BASEDIR}/var`
+2. `chmod -R 777 ${BASEDIR}/tmp`
+3. `chown -R 4000:4000 ${BASEDIR}/var` (4000 is the `appuser` in the containers)
+4. `chown -R 8983:8983 ${BASEDIR}/srv/solr` (8983 is the `solr` in the container)
+5. `cd ${BASEDIR}/srv/www`
+6. `mkdir -p shared/files shared/private shared/settings database`
+7. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in the containers)
 
 
 ## Step 3
@@ -50,8 +51,8 @@ Run these commands:
 Adjust the `SITEREPODIR` env variable in `env/dev/local/.env` to match the
 location where you have downloaded the PROJECTNAME-site codebase.
 
-**Note:** This assumes there is a `PROJECTNAME-site:local` docker image. It
-can be created by running `make` in the `PROJECTNAME-site` repository.
+**Note:** This assumes there is a `unocha/PROJECTNAME-site:local` docker image.
+It can be created by running `make` in the `PROJECTNAME-site` repository.
 
 Run the command:
 `docker-compose up -d`
@@ -103,8 +104,8 @@ in `/path/to/PROJECTNAME-site/config/system.site.yml`)
 **Update site**
 
 1. `docker-compose exec -u appuser drupal drush cr`
-2. `docker-compose exec -u appuser drupal -y drush cim`
-3. `docker-compose exec -u appuser drupal -y drush updatedb`
+2. `docker-compose exec -u appuser drupal drush -y cim`
+3. `docker-compose exec -u appuser drupal drush -y updatedb`
 4. `docker-compose exec -u appuser drupal drush cr`
 
 
@@ -123,6 +124,16 @@ where you'd expect them to be.
 # Common tasks
 ** Composer updates**
 These should be done on the host machine.
+
+** Connecting to another local property**
+Haven't yet worked out an automatic way to do this yet.
+Find the local ip address of the property to connect to with `docker inspect`.
+Add `DOCSTORE_IP=<local_ip_address>` to .env file.
+Add this to docker-compose.yml for the drupal container:
+```
+    extra_hosts:
+      - docstore.test:${DOCSTORE_IP}
+```
 
 
 # Starting and stopping, once set up
@@ -144,16 +155,16 @@ The site should now be working.
 From same directory as docker-compose.yml:
 `docker-compose exec drupal bash`
 From elsewhere:
-`docker exec -it PROJECTNAME-site-drupal sh`
+`docker exec -it PROJECTNAME-drupal sh`
 `exit` (or Ctrl-D) to exit container again.
 
 ## Step 4 - Run commands without entering container
 From same directory as docker-compose.yml:
 `docker-compose exec drupal drush cr`
 From elsewhere:
-`docker exec -it PROJECTNAME-site drupal drush cr`
+`docker exec -it PROJECTNAME drupal drush cr`
 
-## Step 4
+## Step 5
 **Shut down stack**
 `cd` to PROJECTNAME-stack/env/dev/local
 `docker-compose stop`
