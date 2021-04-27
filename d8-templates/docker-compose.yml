@@ -38,6 +38,7 @@ services:
       - "${SITEREPODIR}:/srv/www:rw"
       - "${SITEREPODIR}/docker/settings.php:/srv/www/html/sites/default/settings.php:rw"
       - "${SITEREPODIR}/docker/services.yml:/srv/www/html/sites/default/services.yml:rw"
+      - "${SITEREPODIR}/docker/fastcgi_drupal.conf:/etc/nginx/apps/drupal/fastcgi_drupal.conf:rw"
       - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
       - "${BASEDIR}/var/log/php:/var/log/php:rw"
       - "${BASEDIR}/srv/www/database:/srv/www/database:rw"
