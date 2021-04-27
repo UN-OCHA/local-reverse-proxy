@@ -13,7 +13,7 @@ you are in the directory holding this README. Otherwise, try with `docker exec`.
 ## Step 1
 **Setup local reverse proxy**
 Set up local DNS
-`echo "127.0.0.1 PROJECTNAME.test" >> /etc/hosts`
+`echo "127.0.0.1 PROJECTNAME.test" | sudo tee --append /etc/hosts`
 
 1. Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-proxy) repo.
 2. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/main/README.md)
@@ -28,7 +28,7 @@ For example under `/srv/PROJECT` on linux or `/Users/USERNAME/srv/
 PROJECT` on macOS when using docker for mac.
 
 Create a `BASEDIR` directory for the project and specify its path in
-`env/dev/rplocal/.env` — that path is marked by `${BASEDIR}` in the next set
+`env/local/rplocal/.env` — that path is marked by `${BASEDIR}` in the next set
 of commands.
 
 **Note:** you may need to use `sudo` for the commands below if you use `/srv`
@@ -48,11 +48,8 @@ Run these commands:
 ## Step 3
 **Configure and start the containers**
 
-Adjust the `SITEREPODIR` env variable in `env/dev/local/.env` to match the
+Adjust the `SITEREPODIR` env variable in `env/local/rplocal/.env` to match the
 location where you have downloaded the PROJECTNAME-site codebase.
-
-**Note:** This assumes there is a `unocha/PROJECTNAME-site:local` docker image.
-It can be created by running `make` in the `PROJECTNAME-site` repository.
 
 Run the command:
 `docker-compose up -d`
@@ -146,7 +143,7 @@ If it’s not running, `cd` to local-reverse-proxy directory and
 
 ## Step 2
 **Start PROJECTNAME stack**
-`cd` to PROJECTNAME-stack/env/dev/local
+`cd` to PROJECTNAME-stack/env/local/rplocal
 `docker-compose up -d`
 The site should now be working.
 
@@ -166,5 +163,5 @@ From elsewhere:
 
 ## Step 5
 **Shut down stack**
-`cd` to PROJECTNAME-stack/env/dev/local
+`cd` to PROJECTNAME-stack/env/local/rplocal
 `docker-compose stop`

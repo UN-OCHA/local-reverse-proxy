@@ -31,7 +31,7 @@ services:
           - mysql.${PREFIX}
 
   drupal:
-    image: unocha/${PROJECT}:${TAG:-local}
+    image: unocha/php7-k8s:${TAG:-7.3-develop}
     container_name: ${PROJECT}-drupal
     scale: 1
     volumes:
