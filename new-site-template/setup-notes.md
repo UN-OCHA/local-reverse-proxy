@@ -1,6 +1,6 @@
-# Project set up - Drupal 8 - Reverse proxy based local setup
+# Project set up - Drupal - Reverse proxy based local setup
 
-This is the setup for a drupal 8 site. It requires a reverse proxy
+This is the setup for a drupal site. It requires a reverse proxy
 (for example https://github.com/UN-OCHA/local-reverse-proxy) and a docker
 network named `nginx-proxy`.
 
@@ -115,17 +115,24 @@ Visit PROJECTNAME.test in your browser.
 1. Check BASEDIR and SITEREPODIR variables are correct in .env file.
 2. `docker-compose exec drupal bash` into the container and check files are
 where you'd expect them to be.
-3. Ask for help (and update these notes with the answer).
+3. For 502 'too big header' errors see etc/nginx/vhost.d/README.md
+4. Ask for help (and update these notes with the answer).
 
 
 # Common tasks
-** Composer updates**
+**Composer updates**
 These should be done on the host machine.
 
-** Connecting to another local property**
+**Database updates**
+See step 5, with an optional `drush sql-drop` before the import.
+
+**Connecting to another local property**
 Haven't yet worked out an automatic way to do this yet.
-Find the local ip address of the property to connect to with `docker inspect`.
-Add `DOCSTORE_IP=<local_ip_address>` to .env file.
+@todo - try shell command in .env file for getting local_reverse_proxy_ip_address.
+
+Find the local ip address of the *local reverse proxy* - not the site itself -
+with `docker inspect local-reverse-proxy`.
+Add `DOCSTORE_IP=<local_reverse_proxy_ip_address>` to .env file.
 Add this to docker-compose.yml for the drupal container:
 ```
     extra_hosts:
@@ -155,11 +162,12 @@ From elsewhere:
 `docker exec -it PROJECTNAME-drupal sh`
 `exit` (or Ctrl-D) to exit container again.
 
-## Step 4 - Run commands without entering container
+## Step 4
+**Run commands without entering container**
 From same directory as docker-compose.yml:
 `docker-compose exec drupal drush cr`
 From elsewhere:
-`docker exec -it PROJECTNAME drupal drush cr`
+`docker exec -it PROJECTNAME-drupal drush cr`
 
 ## Step 5
 **Shut down stack**
