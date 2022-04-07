@@ -1,0 +1,15 @@
+{
+        #debug
+        log {
+                output file /logs/main.log
+                format json {
+                        time_format iso8601
+                }
+        }
+        local_certs
+}
+
+:80 {
+	header Content-Type "text/html; charset=utf-8"
+	respond "Nothing here... Yet?"
+}

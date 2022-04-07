@@ -1,20 +1,26 @@
-version: "2"
+version: "2.2"
 
 services:
   proxy:
-    image: jwilder/nginx-proxy:alpine
+    image: public.ecr.aws/unocha/caddy:2.4.6
     container_name: local-reverse-proxy
-    volumes:
-      - ./etc/nginx/conf.d:/etc/nginx/conf.d
-      - ./etc/nginx/vhost.d:/etc/nginx/vhost.d
-      - ./etc/nginx/certs:/etc/nginx/certs
-      - /var/run/docker.sock:/tmp/docker.sock:ro
     ports:
-      - 80:80
-      - 443:443
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    volumes:
+    - ./caddy:/etc/caddy
+    - ./var/config:/config
+    - ./var/data:/data
+    - ./var/logs:/logs
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    working_dir: /etc/caddy
+    environment:
+      CADDY_DOCKER_CADDYFILE_PATH: /etc/caddy/Caddyfile
+      CADDY_INGRESS_NETWORKS: proxy
+      CADDY_DOCKER_POLLING_INTERVAL: 5s
     networks:
-      - nginx-proxy
+      proxy:
 
 networks:
-  nginx-proxy:
+  proxy:
     external: true
