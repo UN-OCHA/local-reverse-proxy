@@ -28,7 +28,7 @@ For example under `/srv/PROJECT` on linux or `/Users/USERNAME/srv/
 PROJECT` on macOS when using docker for mac.
 
 Create a `BASEDIR` directory for the project and specify its path in
-`env/local/rplocal/.env` — that path is marked by `${BASEDIR}` in the next set
+`env/local/.env` — that path is marked by `${BASEDIR}` in the next set
 of commands.
 
 **Note:** you may need to use `sudo` for the commands below if you use `/srv`
@@ -49,7 +49,12 @@ Run these commands:
 **Configure and start the containers**
 
 Adjust the `SITEREPODIR` env variable in `env/local/rplocal/.env` to match the
-location where you have downloaded the PROJECTNAME-site codebase.
+location where you have downloaded the PROJECTNAME-site codebase. Replace
+'PROJECT' where appropriate to define other names and folders.
+
+Build a container image for the site using the dockerfile in the repo by
+running `make` in the root of the repo. Check the created container matches
+the one named in the docker-compose file.
 
 Run the command:
 `docker-compose up -d`
@@ -127,7 +132,9 @@ These should be done on the host machine.
 See step 5, with an optional `drush sql-drop` before the import.
 
 **Connecting to another local property**
-Haven't yet worked out an automatic way to do this yet.
+Haven't yet worked out an automatic way to do this yet, but if reverse proxy
+container is always started before other containers, it should always get the
+same ip address - e.g. 172.28.0.2
 @todo - try shell command in .env file for getting local_reverse_proxy_ip_address.
 
 Find the local ip address of the *local reverse proxy* - not the site itself -
