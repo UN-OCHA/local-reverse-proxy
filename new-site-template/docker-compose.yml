@@ -8,9 +8,7 @@ networks:
 
 services:
   mysql:
-    extends:
-      file: ../../../common.yml
-      service: mysql
+    image: unocha/alpine-mysql:10.4.13-r0-202006-01
     container_name: ${PROJECT}-mysql
     volumes:
       - "${BASEDIR}/var/lib/mysql:/var/lib/mysql"
@@ -31,13 +29,14 @@ services:
           - mysql.${PREFIX}
 
   drupal:
-    image: unocha/${PROJECT}:${TAG:-local}
+    image: unocha/${PROJECT}-site:${TAG:-local}
     container_name: ${PROJECT}-drupal
     scale: 1
     volumes:
       - "${SITEREPODIR}:/srv/www:rw"
       - "${SITEREPODIR}/docker/settings.php:/srv/www/html/sites/default/settings.php:rw"
       - "${SITEREPODIR}/docker/services.yml:/srv/www/html/sites/default/services.yml:rw"
+      #- "${SITEREPODIR}/docker/fastcgi_drupal.conf:/etc/nginx/apps/drupal/fastcgi_drupal.conf:rw"
       - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
       - "${BASEDIR}/var/log/php:/var/log/php:rw"
       - "${BASEDIR}/srv/www/database:/srv/www/database:rw"
@@ -52,6 +51,8 @@ services:
       - TERM=${TERM:-xterm}
       - NGINX_SERVERNAME=${NGINX_SERVERNAME}
       - NGINX_OVERRIDE_PROTOCOL=${NGINX_SERVERNAME}
+      - NGINX_LIMIT_HUMANS=${NGINX_LIMIT_HUMANS}
+      - NGINX_BURST_HUMANS=${NGINX_BURST_HUMANS}
       - LETSENCRYPT_EMAIL=ops+${PREFIX}@humanitarianresponse.info
       - LETSENCRYPT_HOST=${NGINX_SERVERNAME}
       - VIRTUAL_HOST=${NGINX_SERVERNAME}
@@ -83,9 +84,8 @@ services:
       - solr
 
   solr:
-    extends:
-      file: ../../../common.yml
-      service: solr
+    image: solr:8.7.0-slim
+    hostname: ${PROJECT}-${STACK}-solr
     container_name: ${PROJECT}-solr
     volumes:
       - "${BASEDIR}/tmp:/tmp:rw"

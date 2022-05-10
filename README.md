@@ -53,3 +53,8 @@ Aiming for a clear example in the common-design-stack repo - will update when th
 
 ./etc/nginx/conf.d and ./etc/nginx/certs are mounted as local volumes to keep track of created certificates and to make the `default.conf` file easier to access for debugging purposes.
 
+## Set up notes
+
+Copy the contents of `new-site-template` to an `env/local` directory in the
+stack repo. Follow the instructions in `setup-notes.md`, making changes to
+anything that's not clear.
