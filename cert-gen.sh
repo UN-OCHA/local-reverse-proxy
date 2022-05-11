@@ -33,10 +33,8 @@ docker exec -it local-reverse-proxy bash -c "openssl req \
   -newkey rsa:2048 \
   -keyout /etc/nginx/certs/${SITE_URL}.key \
   -out /etc/nginx/certs/${SITE_URL}.crt \
-  -reqexts SAN \
-  -extensions SAN \
   -subj '/C=US/ST=NY/L=New York/O=OCHA/OU=DS/CN=${SITE_URL}' \
-  -config <(cat /etc/ssl/openssl.cnf; printf '\n[SAN]\nsubjectAltName=DNS:${SITE_URL}')"
+  -addext 'subjectAltName=DNS:${SITE_URL}'"
 
 # Restart the proxy container to ensure it uses the certificate.
 docker-compose restart
