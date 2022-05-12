@@ -13,7 +13,11 @@ This will create a reverse proxy container based on the [caddyserver](https://gi
 
 If there is another container or service using those ports then the container will not start and the sites will not be accessible.
 
-Requires a `proxy` network to already exist. If it doesn't: `docker network create proxy`.
+## Create a proxy network in your local docker
+
+The reverse proxy requires a `proxy` network to already exist. If it doesn't: `docker network create proxy`.
+
+## Configure name resolution locally
 
 For every local host you want to use (e.g. some.site.test) you will need to add the following line to your `/etc/hosts` (if on Linux or MacOSX) or to your `C:\Windows\System32\Drivers\etc\hosts`:
 
@@ -64,7 +68,3 @@ Local volumes:
 Copy the contents of `new-site-template` to an `env/local` directory in the
 stack repo. Follow the instructions in `setup-notes.md`, making changes to
 anything that's not clear.
-
-## 502 'too big header' error
-
-See `etc/nginx/vhost.d/README.md`
