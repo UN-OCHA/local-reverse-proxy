@@ -31,9 +31,9 @@ A local SSL CA and local SSL intermediate will be created in `./data/caddy/pki/a
 
 A self signed certificate will be automatically created by caddy for each site you configure when you start your site container for the first time.
 
-You can try to add your local CA and intermediate to your trust store or just ignore the browser warnings.
+On MacOS, you would mark the local CA as trusted by going to `KeyChain Access` -> System. Import the file named `root.crt` from your `./var/data/cady/pki/authorities/local`. After importing it, double click on it, expand the "Trust" section and change the "When using this certificate" to "Always Trust".
 
-Your browser will view the certificate with suspicion, but once accepted, the site will work normally with https.
+If you do not, your browser will view the certificate with suspicion, but once accepted, the site will work normally with https.
 
 ## Adapting a project's docker-compose file to work with reverse proxy.
 
