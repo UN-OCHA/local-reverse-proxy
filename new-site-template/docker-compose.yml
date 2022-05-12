@@ -53,13 +53,7 @@ services:
       - NGINX_OVERRIDE_PROTOCOL=${NGINX_SERVERNAME}
       - NGINX_LIMIT_HUMANS=${NGINX_LIMIT_HUMANS}
       - NGINX_BURST_HUMANS=${NGINX_BURST_HUMANS}
-      - LETSENCRYPT_EMAIL=ops+${PREFIX}@humanitarianresponse.info
-      - LETSENCRYPT_HOST=${NGINX_SERVERNAME}
-      - VIRTUAL_HOST=${NGINX_SERVERNAME}
-      - VIRTUAL_PORT=80
-      - VIRTUAL_NETWORK=nginx-proxy
       - DRUSH_OPTIONS_URI=https://${NGINX_SERVERNAME}
-      - HTTPS_METHOD=noredirect
       - DRUPAL_DB_DATABASE=${MYSQL_DB}
       - DRUPAL_DB_USERNAME=${MYSQL_DB}
       - DRUPAL_DB_PASSWORD=${MYSQL_DB}
@@ -73,6 +67,9 @@ services:
       - PHP_XDEBUG_LOG=${PHP_XDEBUG_LOG}
       - PHP_OPCACHE_ENABLE=${PHP_OPCACHE_ENABLE}
       - SOLR_CORE=${SOLR_CORE:-solr}
+    labels:
+      caddy: ${NGINX_SERVERNAME}
+      caddy.reverse_proxy: "{{upstreams}}"
     networks:
       - default
       - proxy
