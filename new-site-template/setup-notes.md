@@ -1,6 +1,6 @@
-# Project set up - Drupal 8 - Reverse proxy based local setup
+# Project set up - Drupal - Reverse proxy based local setup
 
-This is the setup for a drupal 8 site. It requires a reverse proxy
+This is the setup for a drupal site. It requires a reverse proxy
 (for example https://github.com/UN-OCHA/local-reverse-proxy) and a docker
 network named `nginx-proxy`.
 
@@ -13,7 +13,7 @@ you are in the directory holding this README. Otherwise, try with `docker exec`.
 ## Step 1
 **Setup local reverse proxy**
 Set up local DNS
-`echo "127.0.0.1 PROJECTNAME.test" >> /etc/hosts`
+`echo "127.0.0.1 PROJECTNAME.test" | sudo tee --append /etc/hosts`
 
 1. Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-proxy) repo.
 2. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/main/README.md)
@@ -28,7 +28,7 @@ For example under `/srv/PROJECT` on linux or `/Users/USERNAME/srv/
 PROJECT` on macOS when using docker for mac.
 
 Create a `BASEDIR` directory for the project and specify its path in
-`env/feature/local/.env` — that path is marked by `${BASEDIR}` in the next set
+`env/local/.env` — that path is marked by `${BASEDIR}` in the next set
 of commands.
 
 **Note:** you may need to use `sudo` for the commands below if you use `/srv`
@@ -48,11 +48,13 @@ Run these commands:
 ## Step 3
 **Configure and start the containers**
 
-Adjust the `SITEREPODIR` env variable in `env/dev/local/.env` to match the
-location where you have downloaded the PROJECTNAME-site codebase.
+Adjust the `SITEREPODIR` env variable in `env/local/rplocal/.env` to match the
+location where you have downloaded the PROJECTNAME-site codebase. Replace
+'PROJECT' where appropriate to define other names and folders.
 
-**Note:** This assumes there is a `unocha/PROJECTNAME-site:local` docker image.
-It can be created by running `make` in the `PROJECTNAME-site` repository.
+Build a container image for the site using the dockerfile in the repo by
+running `make` in the root of the repo. Check the created container matches
+the one named in the docker-compose file.
 
 Run the command:
 `docker-compose up -d`
@@ -118,17 +120,26 @@ Visit PROJECTNAME.test in your browser.
 1. Check BASEDIR and SITEREPODIR variables are correct in .env file.
 2. `docker-compose exec drupal bash` into the container and check files are
 where you'd expect them to be.
-3. Ask for help (and update these notes with the answer).
+3. For 502 'too big header' errors see etc/nginx/vhost.d/README.md
+4. Ask for help (and update these notes with the answer).
 
 
 # Common tasks
-** Composer updates**
+**Composer updates**
 These should be done on the host machine.
 
-** Connecting to another local property**
-Haven't yet worked out an automatic way to do this yet.
-Find the local ip address of the property to connect to with `docker inspect`.
-Add `DOCSTORE_IP=<local_ip_address>` to .env file.
+**Database updates**
+See step 5, with an optional `drush sql-drop` before the import.
+
+**Connecting to another local property**
+Haven't yet worked out an automatic way to do this yet, but if reverse proxy
+container is always started before other containers, it should always get the
+same ip address - e.g. 172.28.0.2
+@todo - try shell command in .env file for getting local_reverse_proxy_ip_address.
+
+Find the local ip address of the *local reverse proxy* - not the site itself -
+with `docker inspect local-reverse-proxy`.
+Add `DOCSTORE_IP=<local_reverse_proxy_ip_address>` to .env file.
 Add this to docker-compose.yml for the drupal container:
 ```
     extra_hosts:
@@ -146,7 +157,7 @@ If it’s not running, `cd` to local-reverse-proxy directory and
 
 ## Step 2
 **Start PROJECTNAME stack**
-`cd` to PROJECTNAME-stack/env/dev/local
+`cd` to PROJECTNAME-stack/env/local/rplocal
 `docker-compose up -d`
 The site should now be working.
 
@@ -158,13 +169,14 @@ From elsewhere:
 `docker exec -it PROJECTNAME-drupal sh`
 `exit` (or Ctrl-D) to exit container again.
 
-## Step 4 - Run commands without entering container
+## Step 4
+**Run commands without entering container**
 From same directory as docker-compose.yml:
 `docker-compose exec drupal drush cr`
 From elsewhere:
-`docker exec -it PROJECTNAME drupal drush cr`
+`docker exec -it PROJECTNAME-drupal drush cr`
 
 ## Step 5
 **Shut down stack**
-`cd` to PROJECTNAME-stack/env/dev/local
+`cd` to PROJECTNAME-stack/env/local/rplocal
 `docker-compose stop`
