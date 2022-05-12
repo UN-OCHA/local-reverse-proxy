@@ -8,7 +8,7 @@ services:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
     volumes:
-    - ./caddy:/etc/caddy
+    - ./etc/caddy:/etc/caddy
     - ./var/config:/config
     - ./var/data:/data
     - ./var/logs:/logs
