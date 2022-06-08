@@ -27,6 +27,8 @@ Set up local DNS
 For example under `/srv/PROJECT` on linux or `/Users/USERNAME/srv/
 PROJECT` on macOS when using docker for mac.
 
+Using `/srv` is useful to prevent confusion with the `SITEREPODIR` which is where you will be making changes to the code.
+
 Create a `BASEDIR` directory for the project and specify its path in
 `env/local/.env` — that path is marked by `${BASEDIR}` in the next set
 of commands.
@@ -36,13 +38,29 @@ as `BASEDIR` for example. Ex: `sudo chmod -R 777 tmp`.
 
 Run these commands:
 
-1. `mkdir -p ${BASEDIR}/srv/www ${BASEDIR}/srv/solr ${BASEDIR}/srv/backups ${BASEDIR}/tmp ${BASEDIR}/var`
-2. `chmod -R 777 ${BASEDIR}/tmp`
-3. `chown -R 4000:4000 ${BASEDIR}/var` (4000 is the `appuser` in the containers)
-4. `chown -R 8983:8983 ${BASEDIR}/srv/solr` (8983 is the `solr` in the container)
-5. `cd ${BASEDIR}/srv/www`
-6. `mkdir -p shared/files shared/private shared/settings database`
-7. `chown -R 4000:4000 shared/files shared/private` (4000 is the `appuser` in the containers)
+```sh
+# create some directories
+sudo mkdir ${BASEDIR} && cd ${BASEDIR}
+sudo mkdir -p srv/www srv/backups srv/solr tmp var
+
+# allow tmp to be writeable by everyone
+sudo chmod -R 777 tmp
+
+# Assign ownership to /var. Note: 4000 is the `appuser` in the containers
+sudo chown -R 4000:4000 var
+
+# Assign ownership to /solr. Note: 8983 is the `solr` user in the containers
+sudo chown -R 8983:8983 srv/solr
+
+# Change directories so the next commands are shorter
+cd srv/www
+
+# Create some Drupal-specific directories
+sudo mkdir -p shared/files shared/private shared/settings database
+
+# Change ownership of the directories
+sudo chown -R 4000:4000 shared/files shared/private
+```
 
 
 ## Step 3
@@ -62,6 +80,17 @@ Run the command:
 
 ## Step 4
 **Initialize site**
+On the host machine, run `composer install` from SITEREPODIR.
+
+**Note:** Make sure to have a compatible version of PHP and composer (e.g: PHP
+8 and composer 2). (We tried running composer inside the containers, but
+it got complicated https://humanitarian.atlassian.net/browse/OPS-7240 .)
+
+Copy unocha-standard settings and services files:
+1. `cd "${SITEREPODIR}"`
+2. `cp docker/services.yml docker/settings.php html/sites/default/`
+3. `cd -`
+
 Configure settings for 'hash_salt', 'social_auth_hid' and 'stage_file_proxy' in
 `./settings/settings.local.php`. (The relative path is from this README.)
 
@@ -71,12 +100,6 @@ Copy settings files to the BASEDIR.
 **Note:** Remember that any further changes to local settings should be made in
 the BASEDIR copy. This is so that local changes won't be accidentally
 committed to this stack repository.
-
-On the host machine, run `composer install` from SITEREPODIR.
-
-**Note:** Make sure to have a compatible version of PHP and composer (ex: PHP
-7.3 and composer 1.10). (We tried running composer inside the containers, but
-it got complicated https://humanitarian.atlassian.net/browse/OPS-7240 .)
 
 
 ## Step 5
