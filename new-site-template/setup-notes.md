@@ -27,7 +27,8 @@ Set up local DNS
 For example under `/srv/PROJECT` on linux or `/Users/USERNAME/srv/
 PROJECT` on macOS when using docker for mac.
 
-Using `/srv` is useful to prevent confusion with the `SITEREPODIR` which is where you will be making changes to the code.
+Using `/srv` is useful to prevent confusion with the `SITEREPODIR` which is
+where you will be making changes to the code.
 
 Create a `BASEDIR` directory for the project and specify its path in
 `env/local/.env` — that path is marked by `${BASEDIR}` in the next set
