@@ -67,6 +67,8 @@ sudo chown -R 4000:4000 shared/files shared/private
 ## Step 3
 **Configure and start the containers**
 
+Return to the local stack directory.
+
 Adjust the `SITEREPODIR` env variable in `env/local/rplocal/.env` to match the
 location where you have downloaded the PROJECTNAME-site codebase. Replace
 'PROJECT' where appropriate to define other names and folders.
@@ -87,16 +89,25 @@ On the host machine, run `composer install` from SITEREPODIR.
 8 and composer 2). (We tried running composer inside the containers, but
 it got complicated https://humanitarian.atlassian.net/browse/OPS-7240 .)
 
-Copy unocha-standard settings and services files:
-1. `cd "${SITEREPODIR}"`
-2. `cp docker/services.yml docker/settings.php html/sites/default/`
-3. `cd -`
+Run composer install within the unified builder container:
+
+```sh
+# Move to the site repo:
+cd "${SITEREPODIR}
+
+docker run --rm -v "$(pwd):/srv/www" -w /srv/www -it public.ecr.aws/unocha/unified-builder:8.0-stable sh -c "composer selfupdate && composer install"
+
+# Copy unocha-standard settings and services files:
+cp docker/services.yml docker/settings.php html/sites/default/
+```
 
 Configure settings for 'hash_salt', 'social_auth_hid' and 'stage_file_proxy' in
 `./settings/settings.local.php`. (The relative path is from this README.)
 
-Copy settings files to the BASEDIR.
-`cp ./settings/* "${BASEDIR}/srv/www/shared/settings"`
+```sh
+# Copy settings files to the BASEDIR.
+cp ./settings/* "${BASEDIR}/srv/www/shared/settings"
+```
 
 **Note:** Remember that any further changes to local settings should be made in
 the BASEDIR copy. This is so that local changes won't be accidentally
