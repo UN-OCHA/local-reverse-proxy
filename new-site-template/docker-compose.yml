@@ -29,7 +29,7 @@ services:
           - mysql.${PREFIX}
 
   drupal:
-    image: unocha/${PROJECT}-site:${TAG:-local}
+    image: public.ecr.aws/unocha/${PROJECT}-site:${TAG:-local}
     container_name: ${PROJECT}-drupal
     scale: 1
     volumes:

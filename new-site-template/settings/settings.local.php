@@ -182,3 +182,7 @@ if (PHP_SAPI !== 'cli') {
 // Stage file proxy settings.
 #$config['stage_file_proxy.settings']['origin'] = 'PROD_SITE_URL';
 #$config['stage_file_proxy.settings']['verify'] = TRUE;
+
+// Config split for local.
+$config['config_split.config_split.config_dev']['status'] = TRUE;
+
