@@ -2,7 +2,7 @@ version: "2.2"
 
 services:
   proxy:
-    image: public.ecr.aws/unocha/caddy:2.6.0
+    image: public.ecr.aws/unocha/caddy:2.6.1
     container_name: local-reverse-proxy
     ports:
       - "0.0.0.0:80:80"
