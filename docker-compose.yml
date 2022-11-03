@@ -18,6 +18,7 @@ services:
       CADDY_DOCKER_CADDYFILE_PATH: /etc/caddy/Caddyfile
       CADDY_INGRESS_NETWORKS: proxy
       CADDY_DOCKER_POLLING_INTERVAL: 5s
+    restart: unless-stopped
     networks:
       proxy:
 
