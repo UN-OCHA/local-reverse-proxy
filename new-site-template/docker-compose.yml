@@ -8,7 +8,7 @@ networks:
 
 services:
   mysql:
-    image: unocha/alpine-mysql:10.4.13-r0-202006-01
+    image: public.ecr.aws/unocha/mysql:10.6
     container_name: ${PROJECT}-mysql
     volumes:
       - "${BASEDIR}/var/lib/mysql:/var/lib/mysql"
@@ -78,7 +78,7 @@ services:
       - solr
 
   solr:
-    image: solr:8.7.0-slim
+    image: solr:8.11.2-slim
     hostname: ${PROJECT}-${STACK}-solr
     container_name: ${PROJECT}-solr
     volumes:
