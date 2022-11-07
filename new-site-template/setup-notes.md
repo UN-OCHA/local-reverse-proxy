@@ -17,8 +17,7 @@ Set up local DNS
 
 1. Clone [un-ocha/local-reverse-proxy](https://github.com/UN-OCHA/local-reverse-proxy) repo.
 2. Read the repo's [README](https://github.com/UN-OCHA/local-reverse-proxy/blob/main/README.md)
-3. Generate the certificate: `./cert-gen.sh PROJECT.test`
-4. Start the proxy: `cd local-reverse-proxy && docker-compose up -d`
+3. Start the proxy: `cd local-reverse-proxy && docker-compose up -d`
 
 
 ## Step 2:
@@ -95,7 +94,7 @@ Run composer install within the unified builder container:
 # Move to the site repo:
 cd "${SITEREPODIR}
 
-docker run --rm -v "$(pwd):/srv/www" -w /srv/www -it public.ecr.aws/unocha/unified-builder:8.0-stable sh -c "composer selfupdate && composer install"
+docker run --rm -u $(id -u) -v "$(pwd):/srv/www" -w /srv/www -it public.ecr.aws/unocha/unified-builder:8.0-stable sh -c "composer selfupdate && composer install"
 
 # Copy unocha-standard settings and services files:
 cp docker/services.yml docker/settings.php html/sites/default/
