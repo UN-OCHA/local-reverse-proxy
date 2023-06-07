@@ -65,6 +65,5 @@ Local volumes:
 
 ## Set up notes
 
-Copy the contents of `new-site-template` to an `env/local` directory in the
-stack repo. Follow the instructions in `setup-notes.md`, making changes to
-anything that's not clear.
+Follow `setup-notes.md` in this directory, making changes to anything that's not clear.
+*Note that the `new-site-template` is no longer used. That directory will be removed.*
