@@ -33,7 +33,10 @@ services:
       - mysql
     volumes:
       - "./shared/settings:/srv/www/shared/settings:ro"
-      # Mount scripts for composer install.
+      # Mount composer files.
+      - "../composer.json:/srv/www/composer.json:rw"
+      - "../composer.lock:/srv/www/composer.lock:rw"
+      - "../composer.patches.json:/srv/www/composer.patches.json:rw"
       - "../scripts:/srv/www/scripts:ro"
       # Mount a database directory for import.
       - "../database:/srv/www/database:rw"
