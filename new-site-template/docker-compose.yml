@@ -13,11 +13,11 @@ services:
       - "${BASEDIR}/var/log/mysql:/var/log/mysql"
       - "${BASEDIR}/var/tmp/mysql:/var/tmp/mysql"
     environment:
-      - TERM=${TERM:-xterm}
-      - ENVIRONMENT=${ENVIRONMENT}
-      - MYSQL_DB=${MYSQL_DB}
-      - MYSQL_USER=${MYSQL_DB}
-      - MYSQL_PASS=${MYSQL_DB}
+      TERM: ${TERM:-xterm}
+      ENVIRONMENT: ${ENVIRONMENT}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_DB}
+      MYSQL_PASS: ${MYSQL_DB}
     networks:
       default:
         aliases:
@@ -31,29 +31,29 @@ services:
     container_name: ${PROJECT}-drupal
     scale: 1
     volumes:
-      - "${SITEREPODIR}:/srv/www:rw"
-      - "${BASEDIR}/var/log/nginx:/var/log/nginx:rw"
-      - "${BASEDIR}/var/log/php:/var/log/php:rw"
-      - "${BASEDIR}/srv/www/database:/srv/www/database:rw"
-      - "${BASEDIR}/srv/www/shared:/srv/www/shared:rw"
-      - "${BASEDIR}/srv/www/shared/files:/srv/www/html/sites/default/files:rw"
-      - "${BASEDIR}/srv/www/shared/private:/srv/www/html/sites/default/private:rw"
-      - "${BASEDIR}/tmp:/tmp:rw"
+      - "${SITEREPODIR}:/srv/www"
+      - "${BASEDIR}/var/log/nginx:/var/log/nginx"
+      - "${BASEDIR}/var/log/php:/var/log/php"
+      - "${BASEDIR}/srv/www/database:/srv/www/database"
+      - "${BASEDIR}/srv/www/shared:/srv/www/shared"
+      - "${BASEDIR}/srv/www/shared/files:/srv/www/html/sites/default/files"
+      - "${BASEDIR}/srv/www/shared/private:/srv/www/html/sites/default/private"
+      - "${BASEDIR}/tmp:/tmp"
       - /dev/log:/dev/log
     environment:
       ENVIRONMENT:
       PHP_ENVIRONMENT:
-      TERM=${TERM:-xterm}
+      TERM: ${TERM:-xterm}
       NGINX_SERVERNAME:
       NGINX_OVERRIDE_PROTOCOL:
       NGINX_LIMIT_HUMANS:
       NGINX_BURST_HUMANS:
-      DRUSH_OPTIONS_URI=https://${NGINX_SERVERNAME}
-      DRUPAL_DB_DATABASE=${MYSQL_DB}
-      DRUPAL_DB_USERNAME=${MYSQL_DB}
-      DRUPAL_DB_PASSWORD=${MYSQL_DB}
-      DRUPAL_DB_HOST=mysql.${PREFIX}
-      DRUPAL_DB_DRIVER=mysql
+      DRUSH_OPTIONS_URI: https://${NGINX_SERVERNAME}
+      DRUPAL_DB_DATABASE: ${MYSQL_DB}
+      DRUPAL_DB_USERNAME: ${MYSQL_DB}
+      DRUPAL_DB_PASSWORD: ${MYSQL_DB}
+      DRUPAL_DB_HOST: mysql.${PREFIX}
+      DRUPAL_DB_DRIVER: mysql
       PHP_XDEBUG:
       PHP_XDEBUG_DEFAULT_ENABLE:
       PHP_XDEBUG_REMOTE_AUTOSTART:
@@ -62,7 +62,7 @@ services:
       PHP_XDEBUG_LOG:
       PHP_OPCACHE_ENABLE:
       PHP_MEMORY_LIMIT:
-      SOLR_CORE=${SOLR_CORE:-solr}
+      SOLR_CORE: ${SOLR_CORE:-solr}
     labels:
       caddy: ${NGINX_SERVERNAME}
       caddy.reverse_proxy: "{{upstreams}}"
@@ -72,8 +72,8 @@ services:
     depends_on:
       - mysql
 
-  # *Only if the stack requires solr.*
-  # (the first line is a follow-on from the drupal depends_on list.)
+      # *Only if the stack requires solr.*
+      # (the first line is a follow-on from the drupal depends_on list.)
       - solr
 
   solr:
@@ -86,8 +86,8 @@ services:
       - "${BASEDIR}/srv/backups:/srv/backups"
       - "./etc/solr/configsets:/configsets"
     environment:
-      - TERM=xterm
-      - SOLR_CORE=${SOLR_CORE:-solr}
+      TERM: xterm
+      SOLR_CORE: ${SOLR_CORE:-solr}
     command:
       - solr-precreate
       - ${SOLR_CORE:-solr}
