@@ -1,5 +1,3 @@
-version: "2.2"
-
 services:
   proxy:
     image: public.ecr.aws/unocha/caddy:stable
