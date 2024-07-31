@@ -19,6 +19,8 @@ services:
     restart: unless-stopped
     networks:
       proxy:
+    command:
+      ["caddy", "docker-proxy", "--caddyfile-path", "/etc/caddy/Caddyfile"]
 
 networks:
   proxy:
