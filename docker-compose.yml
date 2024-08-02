@@ -1,18 +1,16 @@
-version: "2.2"
-
 services:
   proxy:
-    image: public.ecr.aws/unocha/caddy:2.6.2
+    image: public.ecr.aws/unocha/caddy:stable
     container_name: local-reverse-proxy
     ports:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
     volumes:
-    - ./etc/caddy:/etc/caddy
-    - ./var/config:/config
-    - ./var/data:/data
-    - ./var/logs:/logs
-    - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./etc/caddy:/etc/caddy
+      - ./var/config:/config
+      - ./var/data:/data
+      - ./var/logs:/logs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     working_dir: /etc/caddy
     environment:
       CADDY_DOCKER_CADDYFILE_PATH: /etc/caddy/Caddyfile
@@ -21,6 +19,8 @@ services:
     restart: unless-stopped
     networks:
       proxy:
+    command:
+      ["caddy", "docker-proxy", "--caddyfile-path", "/etc/caddy/Caddyfile"]
 
 networks:
   proxy:
